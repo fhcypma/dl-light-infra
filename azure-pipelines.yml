@@ -8,7 +8,7 @@ pool:
 
 variables:
   project: dl-light
-  feed: dl-light-infra
+  feed: dl-light
 
 stages:
 - stage: Test
