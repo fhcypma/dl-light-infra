@@ -4,6 +4,7 @@ import aws_cdk as cdk
 from stack.data_stack import DataStack
 from stack.etl_stack import EtlStack
 
+
 def create_dataset_app(
     *,
     name: str,
@@ -19,28 +20,28 @@ def create_dataset_app(
     app = cdk.App()
 
     data_stack = DataStack(
-        scope=app, 
+        scope=app,
         dtap=env,
         data_set_name=name,
         etl_account_id=etl_account,
         tags=tags,
         env=data_env,
-        )
+    )
 
     etl_stack = EtlStack(
-        scope=app, 
+        scope=app,
         dtap=env,
         data_set_name=name,
         data_buckets=data_stack.buckets,
         tags=tags,
         env=etl_env,
-        )
+    )
 
     return app
 
 
 # vpc_stack = VpcStack(
-#     scope=app, 
+#     scope=app,
 #     dtap=dtap,
 #     cidr=settings.infra.vpc.cidr,
 #     tags=aws_tags,
@@ -57,5 +58,3 @@ def create_dataset_app(
 #     tags=aws_tags,
 #     env=etl_env,
 #     )
-
-

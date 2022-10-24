@@ -3,6 +3,7 @@ import aws_cdk as cdk
 
 from util.naming_conventions import to_upper_camel
 
+
 class BasicStack(cdk.Stack):
     """
     Base class for all stacks
@@ -11,11 +12,8 @@ class BasicStack(cdk.Stack):
     """
 
     def __init__(
-        self, scope: cdk.App, 
-        stack_name: str, 
-        dtap: str,
-        tags: Dict[str, str],
-        **kwargs) -> None:
+        self, scope: cdk.App, stack_name: str, dtap: str, tags: Dict[str, str], **kwargs
+    ) -> None:
 
         self.dtap = dtap
         super().__init__(scope, self.construct_name(stack_name), **kwargs)
@@ -35,12 +33,14 @@ class DataSetStack(BasicStack):
     """
 
     def __init__(
-        self, scope: cdk.App, 
-        stack_name: str, 
+        self,
+        scope: cdk.App,
+        stack_name: str,
         dtap: str,
         data_set_name: str,
         tags: Dict[str, str],
-        **kwargs) -> None:
+        **kwargs,
+    ) -> None:
 
         self.data_set_name = data_set_name
         super().__init__(scope, stack_name, dtap, tags, **kwargs)

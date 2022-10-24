@@ -12,6 +12,7 @@ from stack.types import DataSetStack
 def flatten(l):
     return [item for sublist in l for item in sublist]
 
+
 class EtlStack(DataSetStack):
     """
     Contains
@@ -20,12 +21,14 @@ class EtlStack(DataSetStack):
     """
 
     def __init__(
-        self, scope: cdk.App, 
+        self,
+        scope: cdk.App,
         dtap: str,
         data_set_name: str,
         data_buckets: List[Union[s3.Bucket, s3.IBucket]],
         tags: Dict[str, str],
-        **kwargs) -> None:
+        **kwargs,
+    ) -> None:
 
         super().__init__(
             scope,
@@ -33,11 +36,13 @@ class EtlStack(DataSetStack):
             dtap=dtap,
             data_set_name=data_set_name,
             tags=tags,
-            **kwargs)
+            **kwargs,
+        )
 
         # Create role that executes all ETL
         self.etl_role = iam.Role(
-            self, "EtlRole",
+            self,
+            "EtlRole",
             role_name=self.construct_name("EtlRole"),
             description="Role for ETL execution for this dataset",
             assumed_by=iam.CompositePrincipal(
@@ -49,7 +54,12 @@ class EtlStack(DataSetStack):
         self.etl_role.add_to_policy(
             iam.PolicyStatement(
                 effect=iam.Effect.ALLOW,
-                resources=flatten([[bucket.bucket_arn, bucket.arn_for_objects("*")] for bucket in data_buckets]),
+                resources=flatten(
+                    [
+                        [bucket.bucket_arn, bucket.arn_for_objects("*")]
+                        for bucket in data_buckets
+                    ]
+                ),
                 actions=[
                     "s3:GetObject",
                     "s3:GetObjectVersion",
@@ -77,13 +87,12 @@ class EtlStack(DataSetStack):
         # )
 
         etl_function = lambda_.DockerImageFunction(
-            self, f"EtlApplicationsFunction",
+            self,
+            f"EtlApplicationsFunction",
             function_name=self.construct_name("EtlApplicationsFunction"),
             description=f"Lambda function wrapping {data_set.name} ETL application(s)",
             role=self.etl_role,
-            code=lambda_.DockerImageCode.from_image_asset(
-                directory="."
-            ),
+            code=lambda_.DockerImageCode.from_image_asset(directory="."),
             # code=lambda_.DockerImageCode.from_ecr(
             #     repository=repo,
             #     tag_or_digest="latest",
