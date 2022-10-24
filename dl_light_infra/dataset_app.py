@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import Dict
+from typing import Dict, Optional
 import aws_cdk as cdk
 from stack.data_stack import DataStack
 from stack.etl_stack import EtlStack
@@ -12,7 +12,7 @@ def create_dataset_app(
     region: str = "eu-west-1",
     data_account: str,
     etl_account: str,
-    tags: Dict[str, str] = None,
+    tags: Optional[Dict[str, str]],
 ) -> cdk.App:
     data_env = cdk.Environment(account=data_account, region=region)
     etl_env = cdk.Environment(account=etl_account, region=region)
@@ -28,7 +28,7 @@ def create_dataset_app(
         env=data_env,
     )
 
-    etl_stack = EtlStack(
+    EtlStack(
         scope=app,
         dtap=env,
         data_set_name=name,

@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import aws_cdk as cdk
 from aws_cdk import aws_iam as iam
@@ -9,8 +9,8 @@ from aws_cdk import aws_s3 as s3
 from stack.types import DataSetStack
 
 
-def flatten(l):
-    return [item for sublist in l for item in sublist]
+def flatten(list_to_flatten: List[Any]):
+    return [item for sublist in list_to_flatten for item in sublist]
 
 
 class EtlStack(DataSetStack):
@@ -26,7 +26,7 @@ class EtlStack(DataSetStack):
         dtap: str,
         data_set_name: str,
         data_buckets: List[Union[s3.Bucket, s3.IBucket]],
-        tags: Dict[str, str],
+        tags: Optional[Dict[str, str]],
         **kwargs,
     ) -> None:
 
@@ -86,11 +86,11 @@ class EtlStack(DataSetStack):
         #     timeout=cdk.Duration.seconds(10),
         # )
 
-        etl_function = lambda_.DockerImageFunction(
+        lambda_.DockerImageFunction(
             self,
-            f"EtlApplicationsFunction",
+            "EtlApplicationsFunction",
             function_name=self.construct_name("EtlApplicationsFunction"),
-            description=f"Lambda function wrapping {data_set.name} ETL application(s)",
+            description=f"Lambda function wrapping {self.data_set_name} ETL application(s)",
             role=self.etl_role,
             code=lambda_.DockerImageCode.from_image_asset(directory="."),
             # code=lambda_.DockerImageCode.from_ecr(

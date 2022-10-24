@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 import aws_cdk as cdk
 
 from util.naming_conventions import to_upper_camel
@@ -12,13 +12,20 @@ class BasicStack(cdk.Stack):
     """
 
     def __init__(
-        self, scope: cdk.App, stack_name: str, dtap: str, tags: Dict[str, str], **kwargs
+        self,
+        scope: cdk.App,
+        stack_name: str,
+        dtap: str,
+        tags: Optional[Dict[str, str]],
+        **kwargs,
     ) -> None:
 
         self.dtap = dtap
         super().__init__(scope, self.construct_name(stack_name), **kwargs)
 
         # Setting tags to all resources in stack
+        if not tags:
+            tags = {}
         for tag_name, tag_value in tags.items():
             cdk.Tags.of(self).add(tag_name, tag_value)
 
@@ -38,7 +45,7 @@ class DataSetStack(BasicStack):
         stack_name: str,
         dtap: str,
         data_set_name: str,
-        tags: Dict[str, str],
+        tags: Optional[Dict[str, str]],
         **kwargs,
     ) -> None:
 

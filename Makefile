@@ -18,7 +18,7 @@ test:
 code:
 	black dl_light_infra --check
 	flake8 dl_light_infra
-	# mypy dl_light_infra
+	mypy dl_light_infra
 
 # Just for local build
 build: clean

@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 import aws_cdk as cdk
 import aws_cdk.aws_iam as iam
@@ -20,7 +20,7 @@ class DataStack(DataSetStack):
         dtap: str,
         data_set_name: str,
         etl_account_id: str,
-        tags: Dict[str, str],
+        tags: Optional[Dict[str, str]],
         **kwargs,
     ) -> None:
 
