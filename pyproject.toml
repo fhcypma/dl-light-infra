@@ -16,8 +16,8 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/fhcypma/dl-light-infra"
 
-[tool.setuptools]
-packages = ["dl_light_infra"]
+[tool.setuptools.packages.find]
+include = ["dl_light_infra*"]
 
 [build-system]
 requires = ["setuptools"]
