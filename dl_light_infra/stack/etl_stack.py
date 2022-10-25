@@ -6,7 +6,7 @@ from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_s3 as s3
 
-from stack.types import DataSetStack
+from dl_light_infra.stack.types import DataSetStack
 
 
 def flatten(list_to_flatten: List[Any]):

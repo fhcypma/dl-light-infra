@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 from typing import Dict, Optional
 import aws_cdk as cdk
-from stack.data_stack import DataStack
-from stack.etl_stack import EtlStack
+from dl_light_infra.stack.data_stack import DataStack
+from dl_light_infra.stack.etl_stack import EtlStack
 
 
 def create_dataset_app(

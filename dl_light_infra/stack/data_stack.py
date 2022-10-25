@@ -3,9 +3,9 @@ from typing import Dict, Optional
 import aws_cdk as cdk
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_s3 as s3
-from util.naming_conventions import to_dot, to_upper_camel
 
-from stack.types import DataSetStack
+from dl_light_infra.util.naming_conventions import to_dot, to_upper_camel
+from dl_light_infra.stack.types import DataSetStack
 
 
 class DataStack(DataSetStack):

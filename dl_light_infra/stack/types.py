@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 import aws_cdk as cdk
 
-from util.naming_conventions import to_upper_camel
+from dl_light_infra.util.naming_conventions import to_upper_camel
 
 
 class BasicStack(cdk.Stack):
