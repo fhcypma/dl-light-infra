@@ -2,23 +2,13 @@ install:
 	pipenv install -d
 	pipenv shell || echo "Continuing"
 
-install-ci:
-	python -m pip install pipenv
-	python -m pipenv requirements > requirements.txt
-	python -m pip install -r requirements.txt
-
-install-ci-dev:
-	python -m pip install pipenv
-	python -m pipenv requirements --dev > requirements-dev.txt
-	python -m pip install -r requirements-dev.txt
-
 test:
 	pytest -vvv --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml
 
 code:
-	black dl_light_infra --check
-	flake8 dl_light_infra
-	mypy dl_light_infra
+	black src/dl_light_infra --check
+	flake8 src/dl_light_infra
+	mypy src/dl_light_infra
 
 # Just for local build
 build: clean

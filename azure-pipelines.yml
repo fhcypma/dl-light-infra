@@ -29,7 +29,9 @@ stages:
       displayName: 'Use Python $(python.version)'
 
     - script: |
-        make install-ci-dev
+        python -m pip install pipenv
+        python -m pipenv requirements --dev > requirements-dev.txt
+        python -m pip install -r requirements-dev.txt
       displayName: 'Install dependencies'
 
     - script: make code
@@ -63,7 +65,9 @@ stages:
       displayName: 'Use Python 3.9'
 
     - script: |
-        make install-ci
+        python -m pip install pipenv
+        python -m pipenv requirements > requirements.txt
+        python -m pip install -r requirements.txt
       displayName: "Install dependencies"
 
     - script: |
