@@ -15,12 +15,10 @@ class BasicStack(cdk.Stack):
         self,
         scope: cdk.App,
         stack_name: str,
-        dtap: str,
         tags: Optional[Dict[str, str]],
         **kwargs,
     ) -> None:
 
-        self.dtap = dtap
         super().__init__(scope, self.construct_name(stack_name), **kwargs)
 
         # Setting tags to all resources in stack
@@ -31,10 +29,32 @@ class BasicStack(cdk.Stack):
 
     def construct_name(self, name: str):
         """Constructs the name for a CDK construct in UpperCamelCase"""
+        return to_upper_camel(name)
+
+
+class EnvStack(BasicStack):
+    """
+    Base stack environment-aware (dev/prd/etc)
+    """
+
+    def __init__(
+        self,
+        scope: cdk.App,
+        stack_name: str,
+        dtap: str,
+        tags: Optional[Dict[str, str]],
+        **kwargs,
+    ) -> None:
+
+        self.dtap = dtap
+        super().__init__(scope, self.construct_name(stack_name), tags, **kwargs)
+
+    def construct_name(self, name: str):
+        """Constructs the name for a CDK construct in UpperCamelCase"""
         return to_upper_camel(f"{self.dtap}-{name}")
 
 
-class DataSetStack(BasicStack):
+class DataSetStack(EnvStack):
     """
     Base class for all stacks for a dataset
     """
