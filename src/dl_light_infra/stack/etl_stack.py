@@ -26,6 +26,7 @@ class EtlStack(DataSetStack):
         dtap: str,
         data_set_name: str,
         data_buckets: List[Union[s3.Bucket, s3.IBucket]],
+        etl_image_version: str,
         tags: Optional[Dict[str, str]],
         **kwargs,
     ) -> None:
@@ -92,11 +93,11 @@ class EtlStack(DataSetStack):
             function_name=self.construct_name("EtlApplicationsFunction"),
             description=f"Lambda function wrapping {self.data_set_name} ETL application(s)",
             role=self.etl_role,
-            code=lambda_.DockerImageCode.from_image_asset(directory="."),
-            # code=lambda_.DockerImageCode.from_ecr(
-            #     repository=repo,
-            #     tag_or_digest="latest",
-            # ),
+            # code=lambda_.DockerImageCode.from_image_asset(directory="."),
+            code=lambda_.DockerImageCode.from_ecr(
+                repository="spark-on-lambda/base",
+                tag_or_digest=etl_image_version,
+            ),
             log_retention=logs.RetentionDays.ONE_MONTH,
             environment={"ENV_FOR_DYNACONF": dtap},
             timeout=cdk.Duration.seconds(100),

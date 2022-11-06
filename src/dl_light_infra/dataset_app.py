@@ -12,6 +12,7 @@ def create_dataset_app(
     region: str = "eu-west-1",
     data_account: str,
     etl_account: str,
+    etl_image_version: str,
     tags: Optional[Dict[str, str]],
 ) -> cdk.App:
     data_env = cdk.Environment(account=data_account, region=region)
@@ -33,6 +34,7 @@ def create_dataset_app(
         dtap=env,
         data_set_name=name,
         data_buckets=data_stack.buckets,
+        etl_image_version=etl_image_version,
         tags=tags,
         env=etl_env,
     )
