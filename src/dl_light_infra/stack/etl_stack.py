@@ -74,7 +74,9 @@ class EtlStack(DataSetStack):
             )
         )
 
-        repo = ecr.Repository.from_repository_arn(self, "SparkOnLambdaRepo", ecr_repository_arn)
+        repo = ecr.Repository.from_repository_arn(
+            self, "SparkOnLambdaRepo", ecr_repository_arn
+        )
 
         lambda_.DockerImageFunction(
             self,
