@@ -47,7 +47,7 @@ class EnvStack(BasicStack):
     ) -> None:
 
         self.dtap = dtap
-        super().__init__(scope, self.construct_name(stack_name), tags, **kwargs)
+        super().__init__(scope, stack_name, tags, **kwargs)
 
     def construct_name(self, name: str):
         """Constructs the name for a CDK construct in UpperCamelCase"""
