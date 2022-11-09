@@ -5,6 +5,7 @@ from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_s3 as s3
+from aws_cdk import aws_ecr as ecr
 
 from dl_light_infra.stack.types import DataSetStack
 
@@ -26,6 +27,7 @@ class EtlStack(DataSetStack):
         dtap: str,
         data_set_name: str,
         data_buckets: List[Union[s3.Bucket, s3.IBucket]],
+        ecr_repository_arn: str,
         etl_image_version: str,
         tags: Optional[Dict[str, str]],
         **kwargs,
@@ -72,20 +74,7 @@ class EtlStack(DataSetStack):
             )
         )
 
-        # # Ingestion function; lambda
-        # ingest_function = lambda_python.PythonFunction(
-        #     self, f"EtlApplicationsFunction",
-        #     function_name=self.construct_name("EtlApplicationsFunction"),
-        #     description=f"Lambda function wrapping {data_set.name} ETL application(s)",
-        #     role=self.etl_role,
-        #     entry="python",
-        #     index="main.py",
-        #     handler="lambda_handler",
-        #     runtime=lambda_.Runtime.PYTHON_3_9,
-        #     log_retention=logs.RetentionDays.ONE_MONTH,
-        #     environment={"ENV_FOR_DYNACONF": dtap},
-        #     timeout=cdk.Duration.seconds(10),
-        # )
+        repo = ecr.Repository.from_repository_arn(self, "SparkOnLambdaRepo", ecr_repository_arn)
 
         lambda_.DockerImageFunction(
             self,
@@ -95,7 +84,7 @@ class EtlStack(DataSetStack):
             role=self.etl_role,
             # code=lambda_.DockerImageCode.from_image_asset(directory="."),
             code=lambda_.DockerImageCode.from_ecr(
-                repository="spark-on-lambda/base",
+                repository=repo,
                 tag_or_digest=etl_image_version,
             ),
             log_retention=logs.RetentionDays.ONE_MONTH,
