@@ -2,7 +2,6 @@ from typing import Dict, Optional
 
 import aws_cdk as cdk
 import aws_cdk.aws_iam as iam
-import aws_cdk.aws_s3 as s3
 
 from dl_light_infra.util.bucket_constructs import (
     create_bucket,
