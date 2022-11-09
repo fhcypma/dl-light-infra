@@ -1,4 +1,5 @@
 from typing import Dict, Optional
+import constructs
 import aws_cdk as cdk
 
 from dl_light_infra.util.naming_conventions import to_upper_camel
@@ -13,7 +14,7 @@ class BasicStack(cdk.Stack):
 
     def __init__(
         self,
-        scope: cdk.App,
+        scope: constructs.Construct,
         stack_name: str,
         tags: Optional[Dict[str, str]],
         **kwargs,
@@ -39,7 +40,7 @@ class EnvStack(BasicStack):
 
     def __init__(
         self,
-        scope: cdk.App,
+        scope: constructs.Construct,
         stack_name: str,
         dtap: str,
         tags: Optional[Dict[str, str]],
@@ -61,7 +62,7 @@ class DataSetStack(EnvStack):
 
     def __init__(
         self,
-        scope: cdk.App,
+        scope: constructs.Construct,
         stack_name: str,
         dtap: str,
         data_set_name: str,

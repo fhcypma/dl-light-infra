@@ -7,6 +7,7 @@ from aws_cdk import aws_logs as logs
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_ecr as ecr
 
+from dl_light_infra.util.bucket_constructs import create_bucket
 from dl_light_infra.stack.types import DataSetStack
 
 
@@ -84,7 +85,6 @@ class EtlStack(DataSetStack):
             function_name=self.construct_name("EtlApplicationsFunction"),
             description=f"Lambda function wrapping {self.data_set_name} ETL application(s)",
             role=self.etl_role,
-            # code=lambda_.DockerImageCode.from_image_asset(directory="."),
             code=lambda_.DockerImageCode.from_ecr(
                 repository=repo,
                 tag_or_digest=etl_image_version,
@@ -106,3 +106,6 @@ class EtlStack(DataSetStack):
                 ],
             )
         )
+
+        # Create bucket to place code
+        self.code_bucket = create_bucket(self, dtap, data_set_name, "code")
