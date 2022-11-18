@@ -1,15 +1,13 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import aws_cdk as cdk
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
-from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_ecr as ecr
 
 from dl_light_infra.util.bucket_constructs import create_bucket
 from dl_light_infra.stack.types import DataSetStack
-from dl_light_infra.util.naming_conventions import to_upper_camel
 
 
 def flatten(list_to_flatten: List[Any]):
