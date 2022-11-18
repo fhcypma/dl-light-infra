@@ -108,7 +108,10 @@ class EtlStack(DataSetStack):
                     effect=iam.Effect.ALLOW,
                     resources=flatten(
                         [
-                            ["arn:aws:s3:::{bucket_name}", "arn:aws:s3:::{bucket_name}/*"]
+                            [
+                                "arn:aws:s3:::{bucket_name}",
+                                "arn:aws:s3:::{bucket_name}/*",
+                            ]
                             for bucket_name in data_bucket_names
                         ]
                     ),
@@ -121,7 +124,7 @@ class EtlStack(DataSetStack):
                         "s3:GetBucketLocation",
                     ],
                 )
-            ]
+            ],
         )
         etl_role.add_managed_policy(s3_read_write_policy)
 

@@ -63,7 +63,7 @@ class DataStack(DataSetStack):
         processing_bucket.grant_read_write(etl_role)
 
         self.bucket_names = [
-            landing_bucket.bucket_name, 
-            preserve_bucket.ref, 
+            landing_bucket.bucket_name,
+            preserve_bucket.ref,
             processing_bucket.bucket_name,
-            ]
+        ]
