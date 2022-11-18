@@ -2,11 +2,12 @@
 from typing import Dict, Optional
 import aws_cdk as cdk
 from dl_light_infra.stack.data_stack import DataStack
-from dl_light_infra.stack.etl_stack import EtlStack
+from dl_light_infra.stack.etl_stack import EtlRoleStack, EtlStack
 
 
 def create_dataset_app(
     *,
+    scope: cdk.App,
     name: str,
     env: str,
     region: str = "eu-west-1",
@@ -15,34 +16,39 @@ def create_dataset_app(
     ecr_repository_arn: str,
     etl_image_version: str,
     tags: Optional[Dict[str, str]],
-) -> cdk.App:
+) -> None:
     data_env = cdk.Environment(account=data_account, region=region)
     etl_env = cdk.Environment(account=etl_account, region=region)
 
-    app = cdk.App()
-
-    data_stack = DataStack(
-        scope=app,
+    etl_role_stack = EtlRoleStack(
+        scope=scope,
         dtap=env,
         data_set_name=name,
-        etl_account_id=etl_account,
+        tags=tags,
+        env=etl_env,
+    )
+
+    data_stack = DataStack(
+        scope=scope,
+        dtap=env,
+        data_set_name=name,
+        etl_role_arn=etl_role_stack.etl_role_arn,
+        # etl_account_id=etl_account,
         tags=tags,
         env=data_env,
     )
 
     EtlStack(
-        scope=app,
+        scope=scope,
         dtap=env,
         data_set_name=name,
-        data_buckets=data_stack.buckets,
+        etl_role_arn=etl_role_stack.etl_role_arn,
+        data_bucket_names=data_stack.bucket_names,
         ecr_repository_arn=ecr_repository_arn,
         etl_image_version=etl_image_version,
         tags=tags,
         env=etl_env,
     )
-
-    return app
-
 
 # vpc_stack = VpcStack(
 #     scope=app,

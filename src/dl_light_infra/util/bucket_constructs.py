@@ -32,7 +32,7 @@ def create_delete_protected_bucket(
     data_set_name: str,
     bucket_id: str,
     read_write_access: iam.PrincipalBase = None,
-) -> s3.IBucket:
+) -> s3.CfnBucket:
     """
     Create a bucket where objects cannot be deleted.
     Objects that are overwritten are retained via a non-current version and kept for 30 days.
@@ -122,4 +122,4 @@ def create_delete_protected_bucket(
         policy_document=iam.PolicyDocument(statements=policy_statements),
     )
 
-    return bucket
+    return cfn_bucket

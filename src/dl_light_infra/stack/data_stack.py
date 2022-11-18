@@ -21,7 +21,8 @@ class DataStack(DataSetStack):
         scope: cdk.App,
         dtap: str,
         data_set_name: str,
-        etl_account_id: str,
+        etl_role_arn: str,
+        # etl_account_id: str,
         tags: Optional[Dict[str, str]],
         **kwargs,
     ) -> None:
@@ -35,15 +36,13 @@ class DataStack(DataSetStack):
             **kwargs,
         )
 
-        etl_principal = iam.ArnPrincipal(
-            f"arn:aws:iam::{etl_account_id}:role/{self.construct_name('EtlRole')}"
-        )
+        etl_role = iam.ArnPrincipal(etl_role_arn)
 
         # Landing bucket, for external data producers to push data
         landing_bucket = create_bucket(
             self, dtap=dtap, data_set_name=data_set_name, bucket_id="landing"
         )
-        landing_bucket.grant_read_write(etl_principal)
+        landing_bucket.grant_read_write(etl_role)
         landing_bucket.add_lifecycle_rule(
             expiration=cdk.Duration.days(30),
         )
@@ -54,13 +53,17 @@ class DataStack(DataSetStack):
             dtap=dtap,
             data_set_name=data_set_name,
             bucket_id="preserve",
-            read_write_access=etl_principal,
+            read_write_access=etl_role,
         )
 
         # Bucket for all other data
         processing_bucket = create_bucket(
             self, dtap=dtap, data_set_name=data_set_name, bucket_id="processing"
         )
-        processing_bucket.grant_read_write(etl_principal)
+        processing_bucket.grant_read_write(etl_role)
 
-        self.buckets = [landing_bucket, preserve_bucket, processing_bucket]
+        self.bucket_names = [
+            landing_bucket.bucket_name, 
+            preserve_bucket.ref, 
+            processing_bucket.bucket_name,
+            ]
