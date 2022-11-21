@@ -3,11 +3,11 @@ import aws_cdk as cdk
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_s3 as s3
 
-from dl_light_infra.util.naming_conventions import to_dot, to_upper_camel
+from dl_light_infra.util.naming_conventions import to_dot, to_upper_camel, to_kebab
 
 
 def create_bucket_name(dtap: str, data_set_name: str, bucket_id: str):
-    return to_dot(f"yds.{dtap}.{data_set_name}.{bucket_id}")
+    return f"yds.{dtap}.{to_kebab(data_set_name)}.{bucket_id}"
 
 
 def create_bucket(

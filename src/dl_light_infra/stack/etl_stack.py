@@ -95,36 +95,29 @@ class EtlStack(DataSetStack):
 
         etl_role = iam.Role.from_role_arn(self, "EtlRole", etl_role_arn)
 
-        # Grant access for the role to read/write to the S3 buckets
-        s3_read_write_policy = iam.ManagedPolicy(
-            self,
-            "S3ReadWritePolicy",
-            managed_policy_name=self.construct_name("S3ReadWritePolicy"),
-            description="S3 read write access",
-            statements=[
-                iam.PolicyStatement(
-                    effect=iam.Effect.ALLOW,
-                    resources=flatten(
+        # Grant access for the role to read/write to the S3 data buckets
+        etl_role.add_to_principal_policy(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                resources=flatten(
+                    [
                         [
-                            [
-                                "arn:aws:s3:::{bucket_name}",
-                                "arn:aws:s3:::{bucket_name}/*",
-                            ]
-                            for bucket_name in data_bucket_names
+                            f"arn:aws:s3:::{bucket_name}",
+                            f"arn:aws:s3:::{bucket_name}/*",
                         ]
-                    ),
-                    actions=[
-                        "s3:GetObject",
-                        "s3:GetObjectVersion",
-                        "s3:PutObject",
-                        "s3:DeleteObject",
-                        "s3:ListBucket",
-                        "s3:GetBucketLocation",
-                    ],
-                )
-            ],
+                        for bucket_name in data_bucket_names
+                    ]
+                ),
+                actions=[
+                    "s3:GetObject",
+                    "s3:GetObjectVersion",
+                    "s3:PutObject",
+                    "s3:DeleteObject",
+                    "s3:ListBucket",
+                    "s3:GetBucketLocation",
+                ],
+            )
         )
-        etl_role.add_managed_policy(s3_read_write_policy)
 
         repo = ecr.Repository.from_repository_arn(
             self, "SparkOnLambdaRepo", ecr_repository_arn
@@ -148,3 +141,4 @@ class EtlStack(DataSetStack):
 
         # Create bucket to place code
         self.code_bucket = create_bucket(self, dtap, data_set_name, "code")
+        self.code_bucket.grant_read(etl_role)
