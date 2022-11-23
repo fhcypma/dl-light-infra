@@ -61,9 +61,13 @@ class DataStack(DataSetStack):
         processing_bucket.grant_read_write(etl_principal)
 
         self.bucket_names = [
-            landing_bucket.bucket_name,
-            protected_bucket.bucket_name,
-            processing_bucket.bucket_name,
+            name
+            for name in [
+                landing_bucket.bucket_name,
+                protected_bucket.bucket_name,
+                processing_bucket.bucket_name,
+            ]
+            if name
         ]
 
     # @staticmethod

@@ -62,7 +62,6 @@ class EtlRoleStack(DataSetStack):
         )
 
         # Pass role/arn to other stacks
-        self.etl_irole = iam.Role.from_role_arn(self.etl_role.role_arn)
         self.etl_role_arn = self.etl_role.role_arn
 
 
@@ -78,7 +77,7 @@ class EtlStack(DataSetStack):
         scope: cdk.App,
         dtap: str,
         data_set_name: str,
-        etl_irole: iam.IRole,
+        etl_role_arn: str,
         data_bucket_names: List[str],
         ecr_repository_arn: str,
         etl_image_version: str,
@@ -95,13 +94,15 @@ class EtlStack(DataSetStack):
             **kwargs,
         )
 
+        etl_irole = iam.Role.from_role_arn(self, "EtlRole", etl_role_arn)
+
         # Grant read/write for data buckets
         iam.ManagedPolicy(
             self,
             "ReadWriteDataPolicy",
             managed_policy_name=self.construct_name("ReadWriteDataPolicy"),
             description=f"Read-write access to the {self.data_set_name} S3 buckets",
-            roles=etl_irole,
+            roles=[etl_irole],
             statements=[
                 create_read_write_policy_statement(
                     [name_to_arn(name) for name in data_bucket_names]
@@ -118,7 +119,7 @@ class EtlStack(DataSetStack):
             "EtlApplicationsFunction",
             function_name=self.construct_name("EtlApplicationsFunction"),
             description=f"Lambda function wrapping {self.data_set_name} ETL application(s)",
-            role=self.etl_role,
+            role=etl_irole,
             code=lambda_.DockerImageCode.from_ecr(
                 repository=repo,
                 tag_or_digest=etl_image_version,
@@ -131,4 +132,4 @@ class EtlStack(DataSetStack):
 
         # Create bucket to place code
         self.code_bucket = create_bucket(self, dtap, data_set_name, "code")
-        self.code_bucket.grant_read(self.etl_role)
+        self.code_bucket.grant_read(etl_irole)

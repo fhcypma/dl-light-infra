@@ -41,7 +41,7 @@ def create_dataset_app(
         scope=scope,
         dtap=env,
         data_set_name=name,
-        etl_irole=etl_role_stack.etl_irole,
+        etl_role_arn=etl_role_stack.etl_role_arn,
         data_bucket_names=data_stack.bucket_names,
         ecr_repository_arn=ecr_repository_arn,
         etl_image_version=etl_image_version,
