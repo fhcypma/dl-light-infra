@@ -2,7 +2,7 @@
 from typing import Dict, Optional
 import aws_cdk as cdk
 from dl_light_infra.stack.data_stack import DataStack
-from dl_light_infra.stack.etl_stack import EtlStack
+from dl_light_infra.stack.etl_stack import EtlRoleStack, EtlStack
 
 
 def create_dataset_app(
@@ -20,23 +20,33 @@ def create_dataset_app(
     data_env = cdk.Environment(account=data_account, region=region)
     etl_env = cdk.Environment(account=etl_account, region=region)
 
-    etl_stack = EtlStack(
+    etl_role_stack = EtlRoleStack(
         scope=scope,
         dtap=env,
         data_set_name=name,
+        tags=tags,
+        env=data_env,
+    )
+
+    data_stack = DataStack(
+        scope=scope,
+        dtap=env,
+        data_set_name=name,
+        etl_role_arn=etl_role_stack.etl_role_arn,
+        tags=tags,
+        env=data_env,
+    )
+
+    EtlStack(
+        scope=scope,
+        dtap=env,
+        data_set_name=name,
+        etl_irole=etl_role_stack.etl_irole,
+        data_bucket_names=data_stack.bucket_names,
         ecr_repository_arn=ecr_repository_arn,
         etl_image_version=etl_image_version,
         tags=tags,
         env=etl_env,
-    )
-
-    DataStack(
-        scope=scope,
-        dtap=env,
-        data_set_name=name,
-        etl_role_arn=etl_stack.etl_role_arn,
-        tags=tags,
-        env=data_env,
     )
 
 

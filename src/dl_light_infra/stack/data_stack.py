@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Dict, Optional
 
 import aws_cdk as cdk
 import aws_cdk.aws_iam as iam
@@ -46,7 +46,7 @@ class DataStack(DataSetStack):
         )
 
         # Permanent bucket, with additional delete protection
-        create_delete_protected_bucket(
+        protected_bucket = create_delete_protected_bucket(
             self,
             dtap=dtap,
             data_set_name=data_set_name,
@@ -60,10 +60,16 @@ class DataStack(DataSetStack):
         )
         processing_bucket.grant_read_write(etl_principal)
 
-    @staticmethod
-    def get_bucket_ids() -> List[str]:
-        """
-        Returns a list of the bucket_ids this stack will create
-        Convenience function for setting up role permissions before data buckets are created
-        """
-        return ["landing", "preserve", "processing"]
+        self.bucket_names = [
+            landing_bucket.bucket_name,
+            protected_bucket.bucket_name,
+            processing_bucket.bucket_name,
+        ]
+
+    # @staticmethod
+    # def get_bucket_ids() -> List[str]:
+    #     """
+    #     Returns a list of the bucket_ids this stack will create
+    #     Convenience function for setting up role permissions before data buckets are created
+    #     """
+    #     return ["landing", "preserve", "processing"]

@@ -1,22 +1,23 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 import aws_cdk as cdk
 from aws_cdk import aws_iam as iam
-from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_ecr as ecr
 
-from dl_light_infra.util.bucket_constructs import create_bucket, create_bucket_name
+from dl_light_infra.util.bucket_constructs import (
+    create_bucket,
+    create_read_write_policy_statement,
+    name_to_arn,
+)
 from dl_light_infra.stack.types import DataSetStack
-from dl_light_infra.stack.data_stack import DataStack
 
 
-class EtlStack(DataSetStack):
+class EtlRoleStack(DataSetStack):
     """
     Contains
-    - EtlRols managed policies
-    - Ingestion application as Lambada
+    - IAM Role to execute ETL
     """
 
     def __init__(
@@ -24,8 +25,6 @@ class EtlStack(DataSetStack):
         scope: cdk.App,
         dtap: str,
         data_set_name: str,
-        ecr_repository_arn: str,
-        etl_image_version: str,
         tags: Optional[Dict[str, str]],
         **kwargs,
     ) -> None:
@@ -62,16 +61,58 @@ class EtlStack(DataSetStack):
             )
         )
 
-        # Grant read/write for data buckets
-        for id in DataStack.get_bucket_ids():
-            s3.Bucket.from_bucket_name(
-                create_bucket_name(dtap, data_set_name, id)
-            ).grant_read_write(self.etl_role)
+        # Pass role/arn to other stacks
+        self.etl_irole = iam.Role.from_role_arn(self.etl_role.role_arn)
+        self.etl_role_arn = self.etl_role.role_arn
 
+
+class EtlStack(DataSetStack):
+    """
+    Contains
+    - EtlRole managed policies
+    - Ingestion application as Lambada
+    """
+
+    def __init__(
+        self,
+        scope: cdk.App,
+        dtap: str,
+        data_set_name: str,
+        etl_irole: iam.IRole,
+        data_bucket_names: List[str],
+        ecr_repository_arn: str,
+        etl_image_version: str,
+        tags: Optional[Dict[str, str]],
+        **kwargs,
+    ) -> None:
+
+        super().__init__(
+            scope,
+            stack_name=self.__class__.__name__,
+            dtap=dtap,
+            data_set_name=data_set_name,
+            tags=tags,
+            **kwargs,
+        )
+
+        # Grant read/write for data buckets
+        iam.ManagedPolicy(
+            self,
+            "ReadWriteDataPolicy",
+            managed_policy_name=self.construct_name("ReadWriteDataPolicy"),
+            description=f"Read-write access to the {self.data_set_name} S3 buckets",
+            roles=etl_irole,
+            statements=[
+                create_read_write_policy_statement(
+                    [name_to_arn(name) for name in data_bucket_names]
+                )
+            ],
+        )
+
+        # Create Lambda using the given ECR image
         repo = ecr.Repository.from_repository_arn(
             self, "SparkOnLambdaRepo", ecr_repository_arn
         )
-
         lambda_.DockerImageFunction(
             self,
             "EtlApplicationsFunction",

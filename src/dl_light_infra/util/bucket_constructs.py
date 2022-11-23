@@ -1,9 +1,16 @@
+from typing import List, Any
+
 import constructs
 import aws_cdk as cdk
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_s3 as s3
 
 from dl_light_infra.util.naming_conventions import to_upper_camel, to_kebab
+
+
+def _flatten(list: List[List[Any]]) -> List[Any]:
+    """Util for flattening an array of arrays"""
+    return [item for sublist in list for item in sublist]
 
 
 def create_bucket_name(dtap: str, data_set_name: str, bucket_id: str):
@@ -123,3 +130,18 @@ def create_delete_protected_bucket(
     )
 
     return cfn_bucket
+
+
+def name_to_arn(bucket_name: str) -> str:
+    return f"arn:aws:s3:::{bucket_name}"
+
+
+def create_read_write_policy_statement(bucket_arns: List[str]) -> iam.PolicyStatement:
+    return iam.PolicyStatement(
+        effect=iam.Effect.ALLOW,
+        actions=[
+            "s3:*Object",
+            "s3:ListBucket",
+        ],
+        resources=_flatten([[arn, f"{arn}/*"] for arn in bucket_arns]),
+    )
